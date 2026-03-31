@@ -6,9 +6,7 @@
 
 **Do not run without the SVG or JS files. It will not work, don't even try.**
 
-here the preview deployment just so you can see the game 
-
-https://do-not-dusturb.github.io/bit-planes/ 
+There was a preview deployment for reference, but this repository now stays self-contained.
 
 ## Game Information
 
@@ -32,7 +30,7 @@ just have it run the main HTML file and it will work fine.
 
 ## Credits
 
-Please ensure you give credit to the original creator of [Bit-Planes](https://medv.io/bit-planes/).
+Please ensure you give credit to the original creator of Bit-Planes.
 
 ---
 
