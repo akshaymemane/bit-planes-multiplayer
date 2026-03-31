@@ -1,0 +1,7 @@
+{
+  "name": "nintendo-games",
+  "private": true,
+  "scripts": {
+    "start:bit-planes-mp": "node server/server.js"
+  }
+}
