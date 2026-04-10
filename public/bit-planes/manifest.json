@@ -1,0 +1,25 @@
+{
+  "name": "Bit Planes",
+  "short_name": "Bit Planes",
+  "description": "Arcade dogfights with instant custom rooms",
+  "start_url": "/bit-planes/",
+  "scope": "/bit-planes/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0c1824",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

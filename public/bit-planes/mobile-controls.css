@@ -1,0 +1,131 @@
+/* Mobile on-screen controls — only rendered on touch devices */
+#mobile-controls {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  z-index: 900;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#mobile-controls.visible {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 16px 20px;
+}
+
+/* ── D-pad cluster (throttle + elevator) ── */
+.mc-dpad {
+  display: grid;
+  grid-template-columns: 52px 52px 52px;
+  grid-template-rows: 52px 52px 52px;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.mc-dpad .mc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mc-dpad .mc-btn-up    { grid-column: 2; grid-row: 1; }
+.mc-dpad .mc-btn-left  { grid-column: 1; grid-row: 2; }
+.mc-dpad .mc-btn-center { grid-column: 2; grid-row: 2; opacity: 0.2; pointer-events: none; }
+.mc-dpad .mc-btn-right { grid-column: 3; grid-row: 2; }
+.mc-dpad .mc-btn-down  { grid-column: 2; grid-row: 3; }
+
+/* ── Action buttons cluster ── */
+.mc-actions {
+  display: grid;
+  grid-template-columns: 60px 60px;
+  grid-template-rows: 60px 60px;
+  gap: 8px;
+  pointer-events: auto;
+  align-items: end;
+}
+
+.mc-actions .mc-btn-fire    { grid-column: 1; grid-row: 1; }
+.mc-actions .mc-btn-missile { grid-column: 2; grid-row: 1; }
+.mc-actions .mc-btn-eject   { grid-column: 1 / span 2; grid-row: 2; height: 48px; }
+
+/* ── Base button style ── */
+.mc-btn {
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 22px;
+  cursor: pointer;
+  touch-action: none;
+  opacity: 0.58;
+  transition: opacity 0.08s ease, background 0.08s ease, transform 0.08s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* D-pad buttons are slightly smaller */
+.mc-dpad .mc-btn {
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+/* Active / pressed state */
+.mc-btn.pressed {
+  opacity: 0.92;
+  background: rgba(245, 158, 11, 0.45);
+  border-color: rgba(245, 158, 11, 0.7);
+  transform: scale(0.93);
+}
+
+/* Label text under action buttons */
+.mc-btn-label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+  line-height: 1;
+}
+
+.mc-btn-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Eject button is wider — adjust inner layout */
+.mc-btn-eject {
+  font-size: 18px;
+}
+
+/* Landscape-only adjustments */
+@media (max-height: 480px) {
+  #mobile-controls.visible {
+    height: 160px;
+    padding-bottom: 12px;
+  }
+  .mc-dpad {
+    grid-template-columns: 44px 44px 44px;
+    grid-template-rows: 44px 44px 44px;
+    gap: 3px;
+  }
+  .mc-actions {
+    grid-template-columns: 54px 54px;
+    grid-template-rows: 54px 54px;
+  }
+  .mc-btn {
+    font-size: 18px;
+  }
+}

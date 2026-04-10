@@ -6,8 +6,19 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bit Planes">
+    <link rel="apple-touch-icon" href="icon-192.svg">
+
     <title>Bit Planes</title>
     <link href="styles37ad.css?5d2872322fef463c838c" rel="stylesheet">
+    <link href="mobile-controls.css" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
     <style>
@@ -188,7 +199,7 @@
                 <section class="panel controls-panel">
                     <div class="panel-heading">
                         <h2>Controls</h2>
-                        <span>Keyboard only</span>
+                        <span id="controls-hint">Keyboard only</span>
                     </div>
                     <ul class="controls-list">
                         <li><span>Throttle</span> <span><kbd>↑</kbd><kbd>↓</kbd></span></li>
@@ -365,7 +376,19 @@
     <script src="index37ad.js?9f6e5c2d-performance"></script>
     <script src="multiplayer-overlay.js"></script>
     <script src="audio-manager.js?9f6e5c2d-performance"></script>
+    <script src="mobile-controls.js"></script>
     <script>
+        // Register service worker for PWA / offline support
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(function () {});
+        }
+
+        // Update controls hint on touch devices
+        if ('ontouchstart' in window) {
+            var hint = document.getElementById('controls-hint');
+            if (hint) hint.textContent = 'Keyboard + touch';
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             const audioControls = document.getElementById("audioControls");
             const minimizeBtn = document.getElementById("minimizeBtn");
