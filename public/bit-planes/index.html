@@ -78,7 +78,7 @@
         </div>
     </div>
 
-    <!-- Original Game Content (Restored) -->
+    <!-- ORIGINAL GAME STRUCTURE (Complete) -->
     <main>
         <section class="welcome">
             <h1>
@@ -141,8 +141,69 @@
                 <button type="submit">Start game</button>
             </form>
         </section>
+
+        <section class="multiplayer">
+            <div class="multiplayer-options">
+                <div class="multiplayer-option">
+                    <h3>Create a room</h3>
+                    <p>Invite your friends to a private room.</p>
+                    <button id="create-room">Create room</button>
+                </div>
+                <div class="multiplayer-option">
+                    <h3>Join a room</h3>
+                    <p>Join an existing room by its code.</p>
+                    <div class="join-room-form">
+                        <input type="text" id="room-code" placeholder="Room code">
+                        <button id="join-room">Join</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="multiplayer-roster">
+                <div class="multiplayer-roster-header">
+                    <h3>Lobby</h3>
+                    <span id="roster-summary">0/4 pilots connected</span>
+                </div>
+                <ul id="room-player-list"></ul>
+            </div>
+        </section>
+
+        <div class="stats"></div>
+        <canvas class="demo"></canvas>
     </main>
-    
+
+    <div class="ui">
+        <div class="cockpit">
+            <div class="missile-capacity">
+                <div class="missile"></div>
+                <div class="missile"></div>
+            </div>
+            <div class="thrust">
+                <div class="thrust-level"></div>
+            </div>
+            <div class="ammo-capacity">
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+                <div class="ammo"></div>
+            </div>
+        </div>
+        <canvas class="minimap"></canvas>
+        <div class="log"></div>
+    </div>
+    <canvas id="canvas"></canvas>
+
     <!-- Original Game Script -->
     <script src="index37ad.js?5d2872322fef463c838c"></script>
     
