@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>Bit Planes</title>
+<link href="styles37ad.css?5d2872322fef463c838c" rel="stylesheet"></head>
+<body>
+<main>
+    <section class="welcome">
+        <h1>
+            <i class="logo"></i>
+            Bit Planes
+            <i class="logo"></i>
+        </h1>
+        <p>
+            <strong>Controls:</strong><br>
+        </p>
+        <ul>
+            <li>Arrows <kbd>↑</kbd><kbd>↓</kbd> — thrust level.</li>
+            <li>Arrows <kbd>←</kbd><kbd>→</kbd> — elevator controls.</li>
+            <li><kbd>Space</kbd> — fire a gun. <kbd>X</kbd> — deploy a missile.</li>
+            <li><kbd>C</kbd> — catapult / parachute and get new plane at the barn.</li>
+        </ul>
+
+        <form id="game">
+            <label>
+                <input type="text" name="nickname" placeholder="Nickname">
+            </label>
+            <div class="game-modes">
+                <div class="game-modes-column">
+                    <p>
+                        <strong>Game modes:</strong>
+                    </p>
+                    <div>
+                        <label title="Everyone against everyone."><input type="radio" name="mode" value="death-match"
+                                                                         checked autofocus> Death match</label>
+                    </div>
+                    <div>
+                        <label title="Fight between teams."><input type="radio" name="mode" value="teams"> Teams</label>
+                    </div>
+                    <div>
+                        <label title="One on one duel."><input type="radio" name="mode" value="duel"> Duel</label>
+                    </div>
+                    <div>
+                        <label title="Survive with a waives of enemies."><input type="radio" name="mode"
+                                                                                value="survival"> Survival</label>
+                    </div>
+                </div>
+                <div class="game-modes-column">
+                    <p>
+                        <strong>Fun modes:</strong>
+                    </p>
+                    <div>
+                        <label title="Two big teams against each other."><input type="radio" name="mode" value="swarm">
+                            Swarm</label>
+                    </div>
+                    <div>
+                        <label title="Total domination."><input type="radio" name="mode" value="domination"> Overpowered</label>
+                    </div>
+                    <div>
+                        <label title="Revenge of cows."><input type="radio" name="mode" value="revenge"> Revenge</label>
+                    </div>
+                </div>
+            </div>
+            <div class="action">
+                <button class="btn">‣ Start</button>
+            </div>
+        </form>
+
+        <section class="multiplayer-panel" id="multiplayer-panel" aria-live="polite">
+            <div class="multiplayer-panel-header">
+                <div>
+                    <h2>Custom Rooms</h2>
+                    <p>Host a room, invite friends, and launch together without touching the original game flow.</p>
+                </div>
+                <span class="multiplayer-badge">Multiplayer beta</span>
+            </div>
+
+            <div class="multiplayer-arrival" id="multiplayer-arrival" hidden>
+                <strong>Join Room <span id="arrival-room-code">------</span></strong>
+                <span>Open the room with your nickname, then hop into the lobby.</span>
+            </div>
+
+            <div class="multiplayer-health">
+                <span class="multiplayer-pill" id="transport-pill">Checking connection...</span>
+                <span class="multiplayer-pill" id="player-count-pill">0/4 pilots</span>
+            </div>
+
+            <div class="multiplayer-actions">
+                <button class="btn btn-secondary" type="button" id="create-room-button">Create Room</button>
+                <div class="multiplayer-join">
+                    <label class="sr-only" for="room-code-input">Room code</label>
+                    <input type="text" id="room-code-input" placeholder="Room code" maxlength="6" spellcheck="false" autocomplete="off">
+                    <button class="btn btn-secondary" type="button" id="join-room-button">Join Room</button>
+                </div>
+            </div>
+
+            <p class="multiplayer-note">
+                Internet rooms use the room server when available. If it is offline, the lobby falls back to browser-local sync for testing.
+            </p>
+
+            <div class="multiplayer-status" id="multiplayer-status">No room connected.</div>
+            <div class="multiplayer-feedback" id="multiplayer-feedback" hidden></div>
+
+            <div class="multiplayer-lobby" id="multiplayer-lobby" hidden>
+                <div class="multiplayer-meta">
+                    <div>
+                        <strong>Room code:</strong>
+                        <span id="room-code-display">-</span>
+                    </div>
+                    <div>
+                        <strong>Share link:</strong>
+                        <a id="room-link-display" href="#">Open room</a>
+                    </div>
+                    <div>
+                        <strong>Mode:</strong>
+                        <span id="room-mode-display">Death match</span>
+                    </div>
+                </div>
+
+                <div class="multiplayer-lobby-actions">
+                    <button class="btn btn-secondary" type="button" id="copy-room-code-button">Copy Code</button>
+                    <button class="btn btn-secondary" type="button" id="copy-room-link-button">Copy Link</button>
+                    <button class="btn btn-secondary" type="button" id="toggle-ready-button">Ready Up</button>
+                    <button class="btn" type="button" id="start-room-button">Start Match</button>
+                    <button class="btn btn-danger" type="button" id="leave-room-button">Leave Room</button>
+                </div>
+                <p class="multiplayer-action-hint" id="start-room-hint">The host can start once at least 2 pilots are in the lobby.</p>
+
+                <div class="multiplayer-roster">
+                    <div class="multiplayer-roster-header">
+                        <h3>Lobby</h3>
+                        <span id="roster-summary">0/4 pilots connected</span>
+                    </div>
+                    <ul id="room-player-list"></ul>
+                </div>
+            </div>
+        </section>
+
+        <div class="stats"></div>
+        <canvas class="demo"></canvas>
+    </section>
+</main>
+
+<div class="ui">
+    <div class="cockpit">
+        <div class="missile-capacity">
+            <div class="missile"></div>
+            <div class="missile"></div>
+        </div>
+        <div class="thrust">
+            <div class="thrust-level"></div>
+        </div>
+        <div class="ammo-capacity">
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+            <div class="ammo"></div>
+        </div>
+    </div>
+    <canvas class="minimap"></canvas>
+    <div class="log"></div>
+</div>
+<canvas id="canvas"></canvas>
+
+<script type="text/javascript" src="index37ad.js?5d2872322fef463c838c"></script>
+<script type="text/javascript" src="multiplayer-overlay.js"></script></body>
+
+</html>
