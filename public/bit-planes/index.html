@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond&amp;display=swap" rel="stylesheet">
-    <title>Bit Planes Multiplayer</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>Bit Planes</title>
 <link href="styles37ad.css?5d2872322fef463c838c" rel="stylesheet">
     
     <!-- Audio System -->
@@ -56,8 +56,8 @@
         }
     </style>
 </head>
-
 <body>
+    <!-- Audio Controls (Fixed position, on top) -->
     <div class="audio-controls">
         <h3>🎮 Audio Controls</h3>
         <label>
@@ -78,7 +78,70 @@
         </div>
     </div>
 
-    <div id="game"></div>
+    <!-- Original Game Content (Restored) -->
+    <main>
+        <section class="welcome">
+            <h1>
+                <i class="logo"></i>
+                Bit Planes
+                <i class="logo"></i>
+            </h1>
+            <p>
+                <strong>Controls:</strong><br>
+            </p>
+            <ul>
+                <li>Arrows <kbd>↑</kbd><kbd>↓</kbd> — thrust level.</li>
+                <li>Arrows <kbd>←</kbd><kbd>→</kbd> — elevator controls.</li>
+                <li><kbd>Space</kbd> — fire a gun. <kbd>X</kbd> — deploy a missile.</li>
+                <li><kbd>C</kbd> — catapult / parachute and get new plane at the barn.</li>
+            </ul>
+
+            <form id="game">
+                <label>
+                    <input type="text" name="nickname" placeholder="Nickname">
+                </label>
+                <div class="game-modes">
+                    <div class="game-modes-column">
+                        <p>
+                            <strong>Game modes:</strong>
+                        </p>
+                        <div>
+                            <label title="Everyone against everyone."><input type="radio" name="mode" value="death-match"
+                                                                             checked autofocus> Death match</label>
+                        </div>
+                        <div>
+                            <label title="Fight between teams."><input type="radio" name="mode" value="teams"> Teams</label>
+                        </div>
+                        <div>
+                            <label title="One on one duel."><input type="radio" name="mode" value="duel"> Duel</label>
+                        </div>
+                        <div>
+                            <label title="Survive with a waives of enemies."><input type="radio" name="mode"
+                                                                                    value="survival"> Survival</label>
+                        </div>
+                    </div>
+                    <div class="game-modes-column">
+                        <p>
+                            <strong>Game settings:</strong>
+                        </p>
+                        <div>
+                            <label title="Number of enemies."><input type="radio" name="enemies" value="1" checked> 1 enemy</label>
+                        </div>
+                        <div>
+                            <label title="Number of enemies."><input type="radio" name="enemies" value="2"> 2 enemies</label>
+                        </div>
+                        <div>
+                            <label title="Number of enemies."><input type="radio" name="enemies" value="3"> 3 enemies</label>
+                        </div>
+                        <div>
+                            <label title="Number of enemies."><input type="radio" name="enemies" value="4"> 4 enemies</label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit">Start game</button>
+            </form>
+        </section>
+    </main>
     
     <!-- Original Game Script -->
     <script src="index37ad.js?5d2872322fef463c838c"></script>
