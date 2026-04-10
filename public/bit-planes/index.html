@@ -24,24 +24,71 @@
             font-family: Arial, sans-serif;
             font-size: 12px;
             max-width: 200px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
+        
+        .audio-controls.minimized {
+            width: 40px;
+            height: 40px;
+            overflow: hidden;
+            padding: 5px;
+        }
+        
+        .audio-controls.minimized .controls-content {
+            display: none;
+        }
+        
+        .audio-controls.minimized .minimize-btn {
+            transform: rotate(180deg);
+        }
+        
+        .audio-controls-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
         .audio-controls h3 {
-            margin: 0 0 5px 0;
+            margin: 0;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
+        
+        .minimize-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: transform 0.3s ease;
+        }
+        
+        .minimize-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
         .audio-controls label {
             display: block;
             margin: 5px 0;
         }
+        
         .audio-controls input[type="range"] {
             width: 100%;
         }
+        
         .audio-test {
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
             margin-top: 10px;
         }
+        
         .audio-test button {
             background: #444;
             border: none;
@@ -51,31 +98,50 @@
             cursor: pointer;
             font-size: 10px;
         }
+        
         .audio-test button:hover {
             background: #666;
+        }
+        
+        .audio-icon {
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .audio-icon:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <!-- Audio Controls (Fixed position, on top) -->
-    <div class="audio-controls">
-        <h3>🎮 Audio Controls</h3>
-        <label>
-            🔊 Master Volume:
-            <input type="range" id="masterVolume" min="0" max="100" value="70">
-        </label>
-        <label>
-            🔇 <input type="checkbox" id="muteAudio"> Mute All
-        </label>
-        <div class="audio-test">
-            <button onclick="window.bitplanesAudio?.playSound('machine_gun')">🔫 Gun</button>
-            <button onclick="window.bitplanesAudio?.playSound('cannon')">💥 Cannon</button>
-            <button onclick="window.bitplanesAudio?.playSound('explosion')">💣 Explosion</button>
-            <button onclick="window.bitplanesAudio?.playSound('hit')">🎯 Hit</button>
-            <button onclick="window.bitplanesAudio?.playSound('engine')">🚀 Engine</button>
-            <button onclick="window.bitplanesAudio?.playSound('laser')">🔦 Laser</button>
-            <button onclick="window.bitplanesAudio?.playSound('click')">🖱️ Click</button>
+    <!-- Audio Controls with Minimize Option -->
+    <div class="audio-controls" id="audioControls">
+        <div class="audio-controls-header">
+            <h3>🎮 Audio Controls</h3>
+            <button class="minimize-btn" id="minimizeBtn" title="Minimize">▼</button>
         </div>
+        
+        <div class="controls-content">
+            <label>
+                🔊 Master Volume:
+                <input type="range" id="masterVolume" min="0" max="100" value="70">
+            </label>
+            <label>
+                🔇 <input type="checkbox" id="muteAudio"> Mute All
+            </label>
+            <div class="audio-test">
+                <button onclick="window.bitplanesAudio?.playSound('machine_gun')">🔫 Gun</button>
+                <button onclick="window.bitplanesAudio?.playSound('cannon')">💥 Cannon</button>
+                <button onclick="window.bitplanesAudio?.playSound('explosion')">💣 Explosion</button>
+                <button onclick="window.bitplanesAudio?.playSound('hit')">🎯 Hit</button>
+                <button onclick="window.bitplanesAudio?.playSound('engine')">🚀 Engine</button>
+                <button onclick="window.bitplanesAudio?.playSound('laser')">🔦 Laser</button>
+                <button onclick="window.bitplanesAudio?.playSound('click')">🖱️ Click</button>
+            </div>
+        </div>
+        
+        <!-- Minimized view (hidden by default) -->
+        <div class="audio-icon" id="audioIcon" style="display: none;">🔊</div>
     </div>
 
     <!-- ORIGINAL GAME STRUCTURE (Complete) -->
@@ -253,6 +319,54 @@
                         muteAudio.addEventListener('change', function(e) {
                             window.bitplanesAudio?.setMuted(e.target.checked);
                         });
+                    }
+                    
+                    // Setup minimize functionality
+                    const audioControls = document.getElementById('audioControls');
+                    const minimizeBtn = document.getElementById('minimizeBtn');
+                    const audioIcon = document.getElementById('audioIcon');
+                    
+                    if (minimizeBtn && audioControls) {
+                        minimizeBtn.addEventListener('click', function() {
+                            audioControls.classList.toggle('minimized');
+                            
+                            if (audioControls.classList.contains('minimized')) {
+                                minimizeBtn.innerHTML = '▲';
+                                minimizeBtn.title = 'Expand';
+                                audioIcon.style.display = 'block';
+                            } else {
+                                minimizeBtn.innerHTML = '▼';
+                                minimizeBtn.title = 'Minimize';
+                                audioIcon.style.display = 'none';
+                            }
+                        });
+                        
+                        // Click icon to expand when minimized
+                        audioIcon.addEventListener('click', function() {
+                            audioControls.classList.remove('minimized');
+                            minimizeBtn.innerHTML = '▼';
+                            minimizeBtn.title = 'Minimize';
+                            audioIcon.style.display = 'none';
+                        });
+                        
+                        // Auto-minimize after 10 seconds of inactivity
+                        let inactivityTimer;
+                        function resetInactivityTimer() {
+                            clearTimeout(inactivityTimer);
+                            inactivityTimer = setTimeout(() => {
+                                if (!audioControls.classList.contains('minimized')) {
+                                    audioControls.classList.add('minimized');
+                                    minimizeBtn.innerHTML = '▲';
+                                    minimizeBtn.title = 'Expand';
+                                    audioIcon.style.display = 'block';
+                                }
+                            }, 10000); // 10 seconds
+                        }
+                        
+                        // Reset timer on user interaction
+                        audioControls.addEventListener('mouseenter', resetInactivityTimer);
+                        audioControls.addEventListener('click', resetInactivityTimer);
+                        resetInactivityTimer();
                     }
                 }
             }, 1000);
