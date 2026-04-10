@@ -7,235 +7,327 @@
           content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>Bit Planes</title>
-<link href="styles37ad.css?5d2872322fef463c838c" rel="stylesheet">
-    
-    <!-- Audio System -->
+    <link href="styles37ad.css?5d2872322fef463c838c" rel="stylesheet">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
     <style>
         .audio-controls {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
+            top: 18px;
+            right: 18px;
+            width: min(290px, calc(100vw - 36px));
+            padding: 14px;
+            border-radius: 18px;
             z-index: 1000;
-            color: white;
-            font-family: Arial, sans-serif;
+            color: #eff6ff;
+            font-family: "Avenir Next", "Trebuchet MS", sans-serif;
             font-size: 12px;
-            max-width: 200px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            background: rgba(12, 24, 36, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(14px);
+            transition: width 0.25s ease, padding 0.25s ease, transform 0.25s ease, background 0.25s ease;
+            box-shadow: 0 16px 38px rgba(12, 24, 36, 0.28);
         }
-        
+
         .audio-controls.minimized {
-            width: 40px;
-            height: 40px;
+            width: 56px;
+            height: 56px;
+            padding: 0;
             overflow: hidden;
-            padding: 5px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: rgba(12, 24, 36, 0.94);
         }
-        
+
+        .audio-controls.minimized .audio-controls-header,
         .audio-controls.minimized .controls-content {
             display: none;
         }
-        
-        .audio-controls.minimized .minimize-btn {
-            transform: rotate(180deg);
-        }
-        
+
         .audio-controls-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            gap: 12px;
         }
-        
+
         .audio-controls h3 {
             margin: 0;
-            font-size: 14px;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
-        
+
         .minimize-btn {
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.14);
             color: white;
             cursor: pointer;
-            font-size: 16px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            transition: transform 0.3s ease;
+            font-size: 14px;
+            width: 30px;
+            height: 30px;
+            border-radius: 999px;
+            transition: background 0.2s ease, transform 0.2s ease;
         }
-        
+
         .minimize-btn:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
-        
+
         .audio-controls label {
             display: block;
-            margin: 5px 0;
+            margin: 10px 0;
         }
-        
+
         .audio-controls input[type="range"] {
             width: 100%;
+            margin-top: 6px;
         }
-        
+
         .audio-test {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 10px;
+            gap: 6px;
+            margin-top: 12px;
         }
-        
+
         .audio-test button {
-            background: #444;
-            border: none;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: white;
-            padding: 3px 6px;
-            border-radius: 3px;
+            padding: 6px 8px;
+            border-radius: 999px;
             cursor: pointer;
             font-size: 10px;
         }
-        
+
         .audio-test button:hover {
-            background: #666;
+            background: rgba(255, 255, 255, 0.22);
         }
-        
+
         .audio-icon {
-            font-size: 20px;
+            display: none;
+            place-items: center;
+            width: 56px;
+            height: 56px;
+            font-size: 22px;
             cursor: pointer;
         }
-        
+
+        .audio-controls.minimized .audio-icon {
+            display: grid !important;
+        }
+
         .audio-icon:hover {
-            opacity: 0.8;
+            opacity: 0.82;
+        }
+
+        @media only screen and (max-width: 720px) {
+            .audio-controls {
+                top: 12px;
+                right: 12px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <!-- Audio Controls with Minimize Option -->
     <div class="audio-controls" id="audioControls">
         <div class="audio-controls-header">
-            <h3>🎮 Audio Controls</h3>
+            <h3>Audio Console</h3>
             <button class="minimize-btn" id="minimizeBtn" title="Minimize">▼</button>
         </div>
-        
+
         <div class="controls-content">
             <label>
-                🔊 Master Volume:
+                Master volume
                 <input type="range" id="masterVolume" min="0" max="100" value="70">
             </label>
             <label>
-                🔇 <input type="checkbox" id="muteAudio"> Mute All
+                <input type="checkbox" id="muteAudio"> Mute all
             </label>
             <div class="audio-test">
-                <button onclick="window.bitplanesAudio?.playSound('machine_gun')">🔫 Gun</button>
-                <button onclick="window.bitplanesAudio?.playSound('cannon')">💥 Cannon</button>
-                <button onclick="window.bitplanesAudio?.playSound('explosion')">💣 Explosion</button>
-                <button onclick="window.bitplanesAudio?.playSound('hit')">🎯 Hit</button>
-                <button onclick="window.bitplanesAudio?.playSound('engine')">🚀 Engine</button>
-                <button onclick="window.bitplanesAudio?.playSound('laser')">🔦 Laser</button>
-                <button onclick="window.bitplanesAudio?.playSound('click')">🖱️ Click</button>
+                <button onclick="window.bitplanesAudio?.playSound('machine_gun')">Gun</button>
+                <button onclick="window.bitplanesAudio?.playSound('cannon')">Cannon</button>
+                <button onclick="window.bitplanesAudio?.playSound('explosion')">Explosion</button>
+                <button onclick="window.bitplanesAudio?.playSound('hit')">Hit</button>
+                <button onclick="window.bitplanesAudio?.playSound('engine')">Engine</button>
+                <button onclick="window.bitplanesAudio?.playSound('laser')">Laser</button>
+                <button onclick="window.bitplanesAudio?.playSound('click')">Click</button>
             </div>
         </div>
-        
-        <!-- Minimized view (hidden by default) -->
-        <div class="audio-icon" id="audioIcon" style="display: none;">🔊</div>
+
+        <div class="audio-icon" id="audioIcon" aria-label="Expand audio controls" style="display: none;">🔊</div>
     </div>
 
-    <!-- ORIGINAL GAME STRUCTURE (Complete) -->
     <main>
         <section class="welcome">
-            <h1>
-                <i class="logo"></i>
-                Bit Planes
-                <i class="logo"></i>
-            </h1>
-            <p>
-                <strong>Controls:</strong><br>
-            </p>
-            <ul>
-                <li>Arrows <kbd>↑</kbd><kbd>↓</kbd> — thrust level.</li>
-                <li>Arrows <kbd>←</kbd><kbd>→</kbd> — elevator controls.</li>
-                <li><kbd>Space</kbd> — fire a gun. <kbd>X</kbd> — deploy a missile.</li>
-                <li><kbd>C</kbd> — catapult / parachute and get new plane at the barn.</li>
-            </ul>
-
-            <form id="game">
-                <label>
-                    <input type="text" name="nickname" placeholder="Nickname">
-                </label>
-                <div class="game-modes">
-                    <div class="game-modes-column">
-                        <p>
-                            <strong>Game modes:</strong>
-                        </p>
-                        <div>
-                            <label title="Everyone against everyone."><input type="radio" name="mode" value="death-match"
-                                                                             checked autofocus> Death match</label>
-                        </div>
-                        <div>
-                            <label title="Fight between teams."><input type="radio" name="mode" value="teams"> Teams</label>
-                        </div>
-                        <div>
-                            <label title="One on one duel."><input type="radio" name="mode" value="duel"> Duel</label>
-                        </div>
-                        <div>
-                            <label title="Survive with a waives of enemies."><input type="radio" name="mode"
-                                                                                    value="survival"> Survival</label>
-                        </div>
-                    </div>
-                    <div class="game-modes-column">
-                        <p>
-                            <strong>Game settings:</strong>
-                        </p>
-                        <div>
-                            <label title="Number of enemies."><input type="radio" name="enemies" value="1" checked> 1 enemy</label>
-                        </div>
-                        <div>
-                            <label title="Number of enemies."><input type="radio" name="enemies" value="2"> 2 enemies</label>
-                        </div>
-                        <div>
-                            <label title="Number of enemies."><input type="radio" name="enemies" value="3"> 3 enemies</label>
-                        </div>
-                        <div>
-                            <label title="Number of enemies."><input type="radio" name="enemies" value="4"> 4 enemies</label>
-                        </div>
-                    </div>
+            <div class="welcome-header">
+                <div>
+                    <p class="eyebrow">Arcade dogfights with instant custom rooms</p>
+                    <h1>
+                        <i class="logo"></i>
+                        Bit Planes
+                        <i class="logo"></i>
+                    </h1>
+                    <p class="welcome-intro">Launch a solo match, spin up a room for friends, and get airborne without decoding a wall of raw browser controls.</p>
                 </div>
-                <button type="submit">Start game</button>
-            </form>
-        </section>
-
-        <section class="multiplayer">
-            <div class="multiplayer-options">
-                <div class="multiplayer-option">
-                    <h3>Create a room</h3>
-                    <p>Invite your friends to a private room.</p>
-                    <button id="create-room">Create room</button>
-                </div>
-                <div class="multiplayer-option">
-                    <h3>Join a room</h3>
-                    <p>Join an existing room by its code.</p>
-                    <div class="join-room-form">
-                        <input type="text" id="room-code" placeholder="Room code">
-                        <button id="join-room">Join</button>
-                    </div>
+                <div class="welcome-callout">
+                    <strong>Fast takeoff</strong>
+                    <span>Set your callsign, choose a mode, and either launch immediately or share a 6-character room code.</span>
                 </div>
             </div>
 
-            <div class="multiplayer-roster">
-                <div class="multiplayer-roster-header">
-                    <h3>Lobby</h3>
-                    <span id="roster-summary">0/4 pilots connected</span>
-                </div>
-                <ul id="room-player-list"></ul>
-            </div>
-        </section>
+            <div class="welcome-grid">
+                <section class="panel controls-panel">
+                    <div class="panel-heading">
+                        <h2>Controls</h2>
+                        <span>Keyboard only</span>
+                    </div>
+                    <ul class="controls-list">
+                        <li><span>Throttle</span> <span><kbd>↑</kbd><kbd>↓</kbd></span></li>
+                        <li><span>Elevator</span> <span><kbd>←</kbd><kbd>→</kbd></span></li>
+                        <li><span>Fire / missile</span> <span><kbd>Space</kbd><kbd>X</kbd></span></li>
+                        <li><span>Eject / reload</span> <span><kbd>C</kbd></span></li>
+                    </ul>
+                </section>
 
-        <div class="stats"></div>
-        <canvas class="demo"></canvas>
+                <form id="game" class="panel launch-panel">
+                    <div class="panel-heading">
+                        <h2>Launch Setup</h2>
+                        <span>Singleplayer + room host</span>
+                    </div>
+
+                    <label class="field">
+                        <span class="field-label">Pilot name</span>
+                        <input type="text" name="nickname" placeholder="Callsign" autocomplete="nickname">
+                    </label>
+
+                    <div class="game-modes">
+                        <fieldset class="game-modes-column">
+                            <legend>Core modes</legend>
+                            <label class="mode-option" title="Everyone against everyone.">
+                                <input type="radio" name="mode" value="death-match" checked autofocus>
+                                <span><strong>Death Match</strong><em>Free-for-all chaos.</em></span>
+                            </label>
+                            <label class="mode-option" title="Fight between teams.">
+                                <input type="radio" name="mode" value="teams">
+                                <span><strong>Teams</strong><em>Red vs blue squad battle.</em></span>
+                            </label>
+                            <label class="mode-option" title="One on one duel.">
+                                <input type="radio" name="mode" value="duel">
+                                <span><strong>Duel</strong><em>One clean showdown.</em></span>
+                            </label>
+                            <label class="mode-option" title="Survive with waves of enemies.">
+                                <input type="radio" name="mode" value="survival">
+                                <span><strong>Survival</strong><em>Hold out as long as possible.</em></span>
+                            </label>
+                        </fieldset>
+
+                        <fieldset class="game-modes-column">
+                            <legend>Wild cards</legend>
+                            <label class="mode-option" title="Two big teams against each other.">
+                                <input type="radio" name="mode" value="swarm">
+                                <span><strong>Swarm</strong><em>Big teams, busy skies.</em></span>
+                            </label>
+                            <label class="mode-option" title="Total domination.">
+                                <input type="radio" name="mode" value="domination">
+                                <span><strong>Overpowered</strong><em>Ridiculous firepower.</em></span>
+                            </label>
+                            <label class="mode-option" title="Revenge of cows.">
+                                <input type="radio" name="mode" value="revenge">
+                                <span><strong>Revenge</strong><em>The cows remember.</em></span>
+                            </label>
+                        </fieldset>
+                    </div>
+
+                    <div class="action">
+                        <button class="btn" type="submit">Start Match</button>
+                        <p class="form-hint">Launching here starts the original game immediately with the selected mode.</p>
+                    </div>
+                </form>
+            </div>
+
+            <section class="multiplayer-panel" id="multiplayer-panel" aria-live="polite">
+                <div class="multiplayer-panel-header">
+                    <div>
+                        <p class="panel-kicker">Multiplayer</p>
+                        <h2>Custom Rooms</h2>
+                        <p>Host a room, invite friends, and launch together without leaving the main flight setup.</p>
+                    </div>
+                    <span class="multiplayer-badge">Up to 4 pilots</span>
+                </div>
+
+                <div class="multiplayer-arrival" id="multiplayer-arrival" hidden>
+                    <strong>Join Room <span id="arrival-room-code">------</span></strong>
+                    <span>Open the room with your nickname set, then hop into the lobby.</span>
+                </div>
+
+                <div class="multiplayer-health">
+                    <span class="multiplayer-pill" id="transport-pill">Checking connection...</span>
+                    <span class="multiplayer-pill" id="player-count-pill">0/4 pilots</span>
+                </div>
+
+                <div class="multiplayer-actions">
+                    <button class="btn btn-secondary" type="button" id="create-room-button">Create Room</button>
+                    <div class="multiplayer-join">
+                        <label class="sr-only" for="room-code-input">Room code</label>
+                        <input type="text" id="room-code-input" placeholder="Enter room code" maxlength="6" spellcheck="false" autocomplete="off">
+                        <button class="btn btn-secondary" type="button" id="join-room-button">Join Room</button>
+                    </div>
+                </div>
+
+                <p class="multiplayer-note">
+                    Rooms use the server when it is available. If it is offline, the lobby falls back to browser-local sync so testing never stalls out.
+                </p>
+
+                <div class="multiplayer-status" id="multiplayer-status">No room connected.</div>
+                <div class="multiplayer-feedback" id="multiplayer-feedback" hidden></div>
+
+                <div class="multiplayer-lobby" id="multiplayer-lobby" hidden>
+                    <div class="multiplayer-meta">
+                        <div>
+                            <strong>Room code</strong>
+                            <span id="room-code-display">-</span>
+                        </div>
+                        <div>
+                            <strong>Share link</strong>
+                            <a id="room-link-display" href="#">Open room</a>
+                        </div>
+                        <div>
+                            <strong>Mode</strong>
+                            <span id="room-mode-display">Death Match</span>
+                        </div>
+                    </div>
+
+                    <div class="multiplayer-lobby-actions">
+                        <button class="btn btn-secondary" type="button" id="copy-room-code-button">Copy Code</button>
+                        <button class="btn btn-secondary" type="button" id="copy-room-link-button">Copy Link</button>
+                        <button class="btn btn-secondary" type="button" id="toggle-ready-button">Ready Up</button>
+                        <button class="btn" type="button" id="start-room-button">Start Match</button>
+                        <button class="btn btn-danger" type="button" id="leave-room-button">Leave Room</button>
+                    </div>
+                    <p class="multiplayer-action-hint" id="start-room-hint">The host can start once at least 2 pilots are in the lobby.</p>
+
+                    <div class="multiplayer-roster">
+                        <div class="multiplayer-roster-header">
+                            <h3>Lobby</h3>
+                            <span id="roster-summary">0/4 pilots connected</span>
+                        </div>
+                        <ul id="room-player-list"></ul>
+                    </div>
+                </div>
+            </section>
+
+            <div class="stats"></div>
+            <canvas class="demo"></canvas>
+        </section>
     </main>
 
     <div class="ui">
@@ -270,107 +362,86 @@
     </div>
     <canvas id="canvas"></canvas>
 
-    <!-- Original Game Script -->
     <script src="index37ad.js?5d2872322fef463c838c"></script>
-    
-    <!-- Multiplayer Overlay -->
     <script src="multiplayer-overlay.js"></script>
-    
-    <!-- Audio System -->
     <script src="audio-manager.js"></script>
-    
-    <!-- Performance Fixes -->
     <script src="performance-fix.js"></script>
-    
+
     <script>
-        // Initialize audio system
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait a bit for game to load
-            setTimeout(() => {
-                if (window.bitplanesAudio) {
-                    console.log('Audio system initialized');
-                    
-                    // Hook into game events
-                    window.addEventListener('keydown', function(e) {
-                        if (e.code === 'Space') {
-                            window.bitplanesAudio?.playSound('machine_gun');
-                        } else if (e.code === 'KeyX') {
-                            window.bitplanesAudio?.playSound('cannon');
+        document.addEventListener("DOMContentLoaded", function () {
+            const audioControls = document.getElementById("audioControls");
+            const minimizeBtn = document.getElementById("minimizeBtn");
+            const audioIcon = document.getElementById("audioIcon");
+
+            function setAudioPanelMinimized(minimized) {
+                if (!audioControls || !minimizeBtn || !audioIcon) {
+                    return;
+                }
+                audioControls.classList.toggle("minimized", minimized);
+                minimizeBtn.innerHTML = minimized ? "▲" : "▼";
+                minimizeBtn.title = minimized ? "Expand" : "Minimize";
+                audioIcon.style.display = minimized ? "grid" : "none";
+            }
+
+            if (audioControls && minimizeBtn && audioIcon) {
+                minimizeBtn.addEventListener("click", function () {
+                    setAudioPanelMinimized(!audioControls.classList.contains("minimized"));
+                });
+
+                audioIcon.addEventListener("click", function () {
+                    setAudioPanelMinimized(false);
+                });
+
+                let inactivityTimer;
+                function resetInactivityTimer() {
+                    clearTimeout(inactivityTimer);
+                    inactivityTimer = setTimeout(function () {
+                        if (!audioControls.classList.contains("minimized")) {
+                            setAudioPanelMinimized(true);
                         }
+                    }, 12000);
+                }
+
+                audioControls.addEventListener("mouseenter", resetInactivityTimer);
+                audioControls.addEventListener("click", resetInactivityTimer);
+                setAudioPanelMinimized(true);
+                resetInactivityTimer();
+            }
+
+            setTimeout(function () {
+                if (!window.bitplanesAudio) {
+                    return;
+                }
+
+                window.addEventListener("keydown", function (event) {
+                    if (event.code === "Space") {
+                        window.bitplanesAudio.playSound("machine_gun");
+                    } else if (event.code === "KeyX") {
+                        window.bitplanesAudio.playSound("cannon");
+                    }
+                });
+
+                document.addEventListener("click", function () {
+                    window.bitplanesAudio.playSound("click");
+                });
+
+                const masterVolume = document.getElementById("masterVolume");
+                const muteAudio = document.getElementById("muteAudio");
+
+                if (masterVolume) {
+                    masterVolume.addEventListener("input", function (event) {
+                        window.bitplanesAudio.setMasterVolume(event.target.value / 100);
                     });
-                    
-                    // Hook into UI clicks
-                    document.addEventListener('click', function() {
-                        window.bitplanesAudio?.playSound('click');
+                }
+
+                if (muteAudio) {
+                    muteAudio.addEventListener("change", function (event) {
+                        window.bitplanesAudio.setMuted(event.target.checked);
                     });
-                    
-                    // Setup volume controls
-                    const masterVolume = document.getElementById('masterVolume');
-                    const muteAudio = document.getElementById('muteAudio');
-                    
-                    if (masterVolume) {
-                        masterVolume.addEventListener('input', function(e) {
-                            const volume = e.target.value / 100;
-                            window.bitplanesAudio?.setMasterVolume(volume);
-                        });
-                    }
-                    
-                    if (muteAudio) {
-                        muteAudio.addEventListener('change', function(e) {
-                            window.bitplanesAudio?.setMuted(e.target.checked);
-                        });
-                    }
-                    
-                    // Setup minimize functionality
-                    const audioControls = document.getElementById('audioControls');
-                    const minimizeBtn = document.getElementById('minimizeBtn');
-                    const audioIcon = document.getElementById('audioIcon');
-                    
-                    if (minimizeBtn && audioControls) {
-                        minimizeBtn.addEventListener('click', function() {
-                            audioControls.classList.toggle('minimized');
-                            
-                            if (audioControls.classList.contains('minimized')) {
-                                minimizeBtn.innerHTML = '▲';
-                                minimizeBtn.title = 'Expand';
-                                audioIcon.style.display = 'block';
-                            } else {
-                                minimizeBtn.innerHTML = '▼';
-                                minimizeBtn.title = 'Minimize';
-                                audioIcon.style.display = 'none';
-                            }
-                        });
-                        
-                        // Click icon to expand when minimized
-                        audioIcon.addEventListener('click', function() {
-                            audioControls.classList.remove('minimized');
-                            minimizeBtn.innerHTML = '▼';
-                            minimizeBtn.title = 'Minimize';
-                            audioIcon.style.display = 'none';
-                        });
-                        
-                        // Auto-minimize after 10 seconds of inactivity
-                        let inactivityTimer;
-                        function resetInactivityTimer() {
-                            clearTimeout(inactivityTimer);
-                            inactivityTimer = setTimeout(() => {
-                                if (!audioControls.classList.contains('minimized')) {
-                                    audioControls.classList.add('minimized');
-                                    minimizeBtn.innerHTML = '▲';
-                                    minimizeBtn.title = 'Expand';
-                                    audioIcon.style.display = 'block';
-                                }
-                            }, 10000); // 10 seconds
-                        }
-                        
-                        // Reset timer on user interaction
-                        audioControls.addEventListener('mouseenter', resetInactivityTimer);
-                        audioControls.addEventListener('click', resetInactivityTimer);
-                        resetInactivityTimer();
-                    }
                 }
             }, 1000);
         });
     </script>
 </body>
+
 </html>
