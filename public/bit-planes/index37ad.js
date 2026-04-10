@@ -4382,44 +4382,7 @@
                     }
                 }
             }
-            let l = (function () {
-                const M = new r.a({ width: 5e3, height: 5e3, ground: 0, stratosphere: 50 });
-                (M.ground = M.height - o.b.ground.height),
-                    (M.players = []),
-                    (M.onCrash = function (j) {
-                        j.player && j.player.detach(),
-                            setTimeout(() => {
-                                const t = j.player;
-                                if (!t) return;
-                                const L = new y.a(t.color);
-                                (L.life = u.h), (L.ammo = L.maxAmmo = t.maxAmmo), (L.landed = !0), (L.ammo = 0), L.move(Object(A.u)(M.width / 2 + (1200 * Math.random() - 600), M.ground)), t.control(L), M.add(L);
-                            }, 2e3);
-                    }),
-                    Object(g.b)(M);
-                let j = Object(N.b)();
-                for (let t = 0; t < u.j; t++) {
-                    const t = i.a.pop() || "no name",
-                        N = j.pop() || "black",
-                        e = new y.a(N),
-                        I = new n.a(t, N, e);
-                    (e.player = I), M.players.push(I), (e.ammo = e.maxAmmo = I.maxAmmo = u.b), e.move(Object(A.u)(M.width * Math.random(), M.ground * Math.random())), M.add(e), (I.disableAI = Object(L.a)(M, I));
-                }
-                const t = document.querySelector(".demo"),
-                    [D, a] = Object(e.b)(1.25, t);
-                let c = Object(I.a)(
-                    D,
-                    a,
-                    M,
-                    (j, t) => {
-                        Object(e.a)(j, M, M.players[0], t);
-                    },
-                    (M) => {}
-                );
-                return function () {
-                    c();
-                    for (let j of M.players) j.disableAI();
-                };
-            })();
+            let l = function () {};
             Object(S.a)("#game").addEventListener("submit", (M) => {
                 M.preventDefault();
                 let j = "death-match",

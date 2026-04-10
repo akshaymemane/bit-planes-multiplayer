@@ -365,8 +365,6 @@
     <script src="index37ad.js?5d2872322fef463c838c"></script>
     <script src="multiplayer-overlay.js"></script>
     <script src="audio-manager.js"></script>
-    <script src="performance-fix.js"></script>
-
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const audioControls = document.getElementById("audioControls");
@@ -419,10 +417,6 @@
                     } else if (event.code === "KeyX") {
                         window.bitplanesAudio.playSound("cannon");
                     }
-                });
-
-                document.addEventListener("click", function () {
-                    window.bitplanesAudio.playSound("click");
                 });
 
                 const masterVolume = document.getElementById("masterVolume");
