@@ -52,13 +52,9 @@
     root.setAttribute('aria-hidden', 'true');
 
     root.innerHTML = `
-      <!-- Left: D-pad -->
-      <div class="mc-dpad">
-        <button class="mc-btn mc-btn-up"    data-action="up"    type="button">▲</button>
-        <button class="mc-btn mc-btn-left"  data-action="left"  type="button">◀</button>
-        <div    class="mc-btn mc-btn-center"></div>
-        <button class="mc-btn mc-btn-right" data-action="right" type="button">▶</button>
-        <button class="mc-btn mc-btn-down"  data-action="down"  type="button">▼</button>
+      <!-- Left: Virtual joystick -->
+      <div class="mc-joystick">
+        <div class="mc-joystick-knob"></div>
       </div>
 
       <!-- Right: Action buttons -->
@@ -107,6 +103,81 @@
     btn.addEventListener('touchcancel', release, { passive: false });
   }
 
+  // Virtual joystick: slide thumb to steer and throttle simultaneously
+  function wireJoystick(container) {
+    const knob = container.querySelector('.mc-joystick-knob');
+    const MAX_TRAVEL = 42; // px from center
+    const THRESHOLD  = 14; // px before a key activates
+
+    let activeKeys = new Set();
+    let touchId    = null;
+
+    function setKey(action, shouldBeActive) {
+      const isActive = activeKeys.has(action);
+      if (shouldBeActive && !isActive) {
+        activeKeys.add(action);
+        fireKey(action, 'keydown');
+      } else if (!shouldBeActive && isActive) {
+        activeKeys.delete(action);
+        fireKey(action, 'keyup');
+      }
+    }
+
+    function applyPosition(rawDx, rawDy) {
+      // Clamp knob to circular boundary
+      const dist = Math.sqrt(rawDx * rawDx + rawDy * rawDy);
+      const scale = dist > MAX_TRAVEL ? MAX_TRAVEL / dist : 1;
+      const dx = rawDx * scale;
+      const dy = rawDy * scale;
+
+      knob.style.transform = `translate(${dx}px, ${dy}px)`;
+
+      setKey('up',    dy < -THRESHOLD);
+      setKey('down',  dy >  THRESHOLD);
+      setKey('left',  dx < -THRESHOLD);
+      setKey('right', dx >  THRESHOLD);
+    }
+
+    function releaseAll() {
+      for (const action of activeKeys) fireKey(action, 'keyup');
+      activeKeys.clear();
+      knob.style.transform = 'translate(0, 0)';
+      touchId = null;
+    }
+
+    function getCenter() {
+      const r = container.getBoundingClientRect();
+      return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+    }
+
+    container.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (touchId !== null) return;
+      const t = e.changedTouches[0];
+      touchId = t.identifier;
+      const { cx, cy } = getCenter();
+      applyPosition(t.clientX - cx, t.clientY - cy);
+    }, { passive: false });
+
+    container.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) {
+        if (t.identifier !== touchId) continue;
+        const { cx, cy } = getCenter();
+        applyPosition(t.clientX - cx, t.clientY - cy);
+        break;
+      }
+    }, { passive: false });
+
+    const end = (e) => {
+      for (const t of e.changedTouches) {
+        if (t.identifier === touchId) { releaseAll(); break; }
+      }
+    };
+    container.addEventListener('touchend',    end, { passive: false });
+    container.addEventListener('touchcancel', end, { passive: false });
+  }
+
   // Show / hide controls based on game state
   function bindVisibility(root) {
     const mainEl = document.querySelector('main');
@@ -130,6 +201,7 @@
   function init() {
     const root = buildControls();
 
+    wireJoystick(root.querySelector('.mc-joystick'));
     root.querySelectorAll('.mc-btn[data-action]').forEach(wireButton);
 
     // Prevent any touch on the control overlay reaching the canvas

@@ -19,26 +19,35 @@
   padding: 0 16px 20px;
 }
 
-/* ── D-pad cluster (throttle + elevator) ── */
-.mc-dpad {
-  display: grid;
-  grid-template-columns: 52px 52px 52px;
-  grid-template-rows: 52px 52px 52px;
-  gap: 4px;
+/* ── Virtual joystick ── */
+.mc-joystick {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   pointer-events: auto;
-}
-
-.mc-dpad .mc-btn {
+  touch-action: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  flex-shrink: 0;
 }
 
-.mc-dpad .mc-btn-up    { grid-column: 2; grid-row: 1; }
-.mc-dpad .mc-btn-left  { grid-column: 1; grid-row: 2; }
-.mc-dpad .mc-btn-center { grid-column: 2; grid-row: 2; opacity: 0.2; pointer-events: none; }
-.mc-dpad .mc-btn-right { grid-column: 3; grid-row: 2; }
-.mc-dpad .mc-btn-down  { grid-column: 2; grid-row: 3; }
+.mc-joystick-knob {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.55);
+  border: 2px solid rgba(245, 158, 11, 0.85);
+  pointer-events: none;
+  position: absolute;
+  /* transition intentionally short so knob tracks finger without lag */
+  transition: transform 0.04s linear;
+}
 
 /* ── Action buttons cluster ── */
 .mc-actions {
@@ -116,10 +125,13 @@
     height: 160px;
     padding-bottom: 12px;
   }
-  .mc-dpad {
-    grid-template-columns: 44px 44px 44px;
-    grid-template-rows: 44px 44px 44px;
-    gap: 3px;
+  .mc-joystick {
+    width: 110px;
+    height: 110px;
+  }
+  .mc-joystick-knob {
+    width: 40px;
+    height: 40px;
   }
   .mc-actions {
     grid-template-columns: 54px 54px;
