@@ -60,6 +60,8 @@
     let transportAvailabilityPromise = null;
     let joinInFlight = false;
     let createInFlight = false;
+    let sseRetryCount = 0;
+    const SSE_MAX_RETRIES = 5;
 
     bindEvents();
     syncRoomFromUrl();
@@ -229,6 +231,10 @@
             if (!storedState && transport.mode === "remote") {
                 setFeedback("Room is reachable, but no host has published lobby state yet.");
             }
+        } catch (error) {
+            state = null;
+            setStatus("Failed to join room " + roomCode + ". Please try again.");
+            setFeedback(error && error.message ? error.message : "Could not connect to the room.");
         } finally {
             joinInFlight = false;
             render();
@@ -239,13 +245,6 @@
         const silent = options && options.silent;
         if (!state) {
             return;
-        }
-
-        if (!silent && state.players && state.players.length > 1) {
-            const shouldLeave = window.confirm(isHost() ? "Leave this room and hand host control to another pilot?" : "Leave this room?");
-            if (!shouldLeave) {
-                return;
-            }
         }
 
         if (isHost()) {
@@ -276,6 +275,12 @@
             return;
         }
         self.ready = !self.ready;
+        const ownPlayer = state.players.find(function (player) {
+            return player.id === self.id;
+        });
+        if (ownPlayer) {
+            ownPlayer.ready = self.ready;
+        }
         announcePresence();
         render();
     }
@@ -349,7 +354,17 @@
             }
         });
         transport.eventSource.addEventListener("error", function () {
-            setStatus("Room connection interrupted. Trying to reconnect...");
+            if (sseRetryCount >= SSE_MAX_RETRIES) {
+                setStatus("Room connection lost. Please leave and rejoin.");
+                return;
+            }
+            sseRetryCount += 1;
+            setStatus("Room connection interrupted. Reconnecting (" + sseRetryCount + "/" + SSE_MAX_RETRIES + ")...");
+            transport.eventSource.close();
+            transport.eventSource = null;
+            window.setTimeout(function () {
+                connectRemote(roomCode);
+            }, 2000);
         });
     }
 
@@ -359,10 +374,14 @@
         }
 
         if (message.type === "connected") {
+            sseRetryCount = 0;
             return;
         }
 
         if (message.type === "room-state") {
+            if (!message.state || !Array.isArray(message.state.players) || typeof message.state.roomCode !== "string") {
+                return;
+            }
             state = message.state;
             persistRoomSnapshot(state);
             syncSelfFromState();
@@ -646,6 +665,7 @@
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(payload),
+                    signal: AbortSignal.timeout(10000),
                 });
             } catch (error) {
                 setStatus("Could not reach the room server. Falling back to browser-local sync.");
@@ -661,6 +681,9 @@
     function teardownRoom() {
         stopHeartbeatLoop();
         teardownChannel();
+        if (state && state.roomCode) {
+            localStorage.removeItem(getRoomStorageKey(state.roomCode));
+        }
         const params = new URLSearchParams(window.location.search);
         params.delete(ROOM_PARAM);
         const nextQuery = params.toString();
@@ -699,7 +722,7 @@
     async function loadStoredState(roomCode) {
         if (transport.mode === "remote") {
             try {
-                const response = await fetch(transport.apiBase + "/rooms/" + encodeURIComponent(roomCode) + "/state");
+                const response = await fetch(transport.apiBase + "/rooms/" + encodeURIComponent(roomCode) + "/state", { signal: AbortSignal.timeout(10000) });
                 if (response.ok) {
                     const payload = await response.json();
                     persistRoomSnapshot(payload.state);
@@ -917,7 +940,7 @@
 
     async function hasRemoteTransport() {
         if (!transportAvailabilityPromise) {
-            transportAvailabilityPromise = fetch(transport.apiBase + "/health", { cache: "no-store" })
+            transportAvailabilityPromise = fetch(transport.apiBase + "/health", { cache: "no-store", signal: AbortSignal.timeout(10000) })
                 .then(function (response) {
                     return response.ok;
                 })

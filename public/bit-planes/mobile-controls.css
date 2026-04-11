@@ -65,7 +65,7 @@
   font-size: 22px;
   cursor: pointer;
   touch-action: none;
-  opacity: 0.58;
+  opacity: 0.75;
   transition: opacity 0.08s ease, background 0.08s ease, transform 0.08s ease;
   display: flex;
   align-items: center;

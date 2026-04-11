@@ -9,6 +9,11 @@ const HOST = process.env.HOST || "127.0.0.1";
 const PORT = Number(process.env.PORT || 3000);
 const ROOM_TTL_MS = 1000 * 60 * 60 * 2;
 const MAX_PLAYERS = 4;
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "*";
+const RATE_LIMIT_WINDOW_MS = 1000;
+const RATE_LIMIT_MAX = 30;
+
+const roomRateLimits = new Map();
 
 const rooms = new Map();
 
@@ -53,6 +58,10 @@ const server = http.createServer((request, response) => {
         }
 
         if (endpoint === "events" && request.method === "POST") {
+            if (!checkRateLimit(roomCode)) {
+                writeJson(response, 429, { error: "Too many requests" });
+                return;
+            }
             readJson(request, response, (payload) => {
                 handleRoomEventPost(response, roomCode, payload);
             });
@@ -213,12 +222,19 @@ function getRoom(roomCode) {
 
 function broadcast(room, event) {
     for (const subscriber of room.subscribers) {
-        sendSse(subscriber.response, event);
+        if (!sendSse(subscriber.response, event)) {
+            room.subscribers.delete(subscriber);
+        }
     }
 }
 
 function sendSse(response, payload) {
-    response.write(`data: ${JSON.stringify(payload)}\n\n`);
+    try {
+        response.write(`data: ${JSON.stringify(payload)}\n\n`);
+        return true;
+    } catch (_) {
+        return false;
+    }
 }
 
 function validateRoomState(state, roomCode) {
@@ -251,13 +267,19 @@ function pruneRooms() {
 
 function readJson(request, response, onSuccess) {
     let body = "";
+    let aborted = false;
     request.on("data", (chunk) => {
         body += chunk;
         if (body.length > 1024 * 1024) {
+            aborted = true;
+            writeJson(response, 413, { error: "Payload too large" });
             request.destroy();
         }
     });
     request.on("end", () => {
+        if (aborted) {
+            return;
+        }
         try {
             const parsed = body ? JSON.parse(body) : {};
             onSuccess(parsed);
@@ -278,7 +300,18 @@ function writeJson(response, statusCode, payload) {
 }
 
 function writeCorsHeaders(response) {
-    response.setHeader("Access-Control-Allow-Origin", "*");
+    response.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
     response.setHeader("Access-Control-Allow-Headers", "Content-Type");
     response.setHeader("Access-Control-Allow-Methods", "GET,POST,HEAD,OPTIONS");
+}
+
+function checkRateLimit(roomCode) {
+    const now = Date.now();
+    let bucket = roomRateLimits.get(roomCode);
+    if (!bucket || now - bucket.windowStart >= RATE_LIMIT_WINDOW_MS) {
+        bucket = { windowStart: now, count: 0 };
+        roomRateLimits.set(roomCode, bucket);
+    }
+    bucket.count += 1;
+    return bucket.count <= RATE_LIMIT_MAX;
 }

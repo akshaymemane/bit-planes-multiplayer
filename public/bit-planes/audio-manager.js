@@ -4,15 +4,17 @@
 class AudioManager {
     constructor() {
         this.sounds = {};
+        this.soundBaseVolumes = {};
         this.music = null;
         this.masterVolume = 1.0;
         this.sfxVolume = 1.0;
         this.musicVolume = 0.7;
         this.muted = false;
         this.initialized = false;
-        
+
         // Audio pool for frequently played sounds
         this.audioPools = {};
+        this.audioPoolBaseVolumes = {};
         this.maxConcurrentSounds = 8;
         this.currentSounds = 0;
     }
@@ -46,25 +48,29 @@ class AudioManager {
             volume: 0.8,
             preload: true
         });
-        
+        this.soundBaseVolumes.click = 0.8;
+
         this.sounds.engine = new Howl({
             src: ['sounds/engine.wav'],
             volume: 0.6,
             loop: true,
             preload: true
         });
-        
+        this.soundBaseVolumes.engine = 0.6;
+
         this.sounds.laser = new Howl({
             src: ['sounds/laser.wav'],
             volume: 0.9,
             preload: true
         });
-        
+        this.soundBaseVolumes.laser = 0.9;
+
         this.sounds.cannon = new Howl({
             src: ['sounds/cannon.wav'],
             volume: 1.0,
             preload: true
         });
+        this.soundBaseVolumes.cannon = 1.0;
         
         // Load pooled sounds
         this.loadPooledSound('machine_gun', 'sounds/machine_gun.wav', 0.7);
@@ -88,21 +94,27 @@ class AudioManager {
             console.error(`Audio pool ${poolName} not found`);
             return;
         }
-        
+
+        this.audioPoolBaseVolumes[poolName] = volume;
+
         for (let i = 0; i < pool.size; i++) {
             const sound = new Howl({
                 src: [src],
                 volume: volume,
                 preload: true,
                 onend: () => {
-                    this.currentSounds--;
-                }
+                    this.currentSounds = Math.max(0, this.currentSounds - 1);
+                },
+                onstop: () => {
+                    this.currentSounds = Math.max(0, this.currentSounds - 1);
+                },
             });
             pool.pool.push(sound);
         }
-        
+
         // Also store as regular sound for single playback
         this.sounds[poolName] = pool.pool[0];
+        this.soundBaseVolumes[poolName] = volume;
     }
     
     // Play a sound from a pool
@@ -116,7 +128,8 @@ class AudioManager {
         
         const pool = this.audioPools[poolName];
         const sound = pool.pool[pool.currentIndex];
-        
+        if (!sound) return null;
+
         // Apply volume
         const volume = this.sfxVolume * (options.volume || 1);
         sound.volume(volume);
@@ -243,24 +256,24 @@ class AudioManager {
     
     updateAllVolumes() {
         // Update all sounds with new volume
-        Object.values(this.sounds).forEach(sound => {
+        Object.keys(this.sounds).forEach(name => {
+            const sound = this.sounds[name];
             if (sound && sound.volume) {
-                // Get the base volume from the sound's initial settings
-                const baseVolume = sound._volume || 1;
+                const baseVolume = this.soundBaseVolumes[name] || 1;
                 sound.volume(baseVolume * this.sfxVolume * this.masterVolume);
             }
         });
-        
+
         // Update pooled sounds
-        Object.values(this.audioPools).forEach(pool => {
-            pool.pool.forEach(sound => {
+        Object.keys(this.audioPools).forEach(poolName => {
+            const baseVolume = this.audioPoolBaseVolumes[poolName] || 1;
+            this.audioPools[poolName].pool.forEach(sound => {
                 if (sound && sound.volume) {
-                    const baseVolume = sound._volume || 1;
                     sound.volume(baseVolume * this.sfxVolume * this.masterVolume);
                 }
             });
         });
-        
+
         // Update music
         if (this.music) {
             this.music.volume(this.musicVolume * this.masterVolume);

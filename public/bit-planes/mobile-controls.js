@@ -26,15 +26,9 @@
     eject:   { code: 'KeyC',       key: 'c'          },
   };
 
-  // Track which keys are currently held so we don't double-fire keydown
-  const held = new Set();
-
   function fireKey(action, type) {
     const k = KEY[action];
     if (!k) return;
-    if (type === 'keydown' && held.has(action)) return;
-    if (type === 'keydown') held.add(action);
-    if (type === 'keyup') held.delete(action);
 
     const event = new KeyboardEvent(type, {
       bubbles: true,
@@ -90,14 +84,15 @@
     const action = btn.dataset.action;
     if (!action) return;
 
-    // Each touch point that started on this button
-    const activeTouches = new Set();
+    // Count active touch points per button; fire key events only on first/last
+    const activeTouches = new Map(); // identifier -> true
 
     btn.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      for (const t of e.changedTouches) activeTouches.add(t.identifier);
+      const wasEmpty = activeTouches.size === 0;
+      for (const t of e.changedTouches) activeTouches.set(t.identifier, true);
       btn.classList.add('pressed');
-      fireKey(action, 'keydown');
+      if (wasEmpty) fireKey(action, 'keydown');
     }, { passive: false });
 
     const release = (e) => {
@@ -123,8 +118,11 @@
       root.classList.toggle('visible', gameRunning);
     }
 
-    // Poll once per second — lightweight and reliable across all browsers
-    setInterval(update, 800);
+    // Observe attribute and style changes for fast response
+    const observer = new MutationObserver(update);
+    observer.observe(mainEl, { attributes: true, attributeFilter: ['hidden', 'style', 'class'] });
+    // Fallback poll at 100ms for display changes applied via stylesheet
+    setInterval(update, 100);
     update();
   }
 
