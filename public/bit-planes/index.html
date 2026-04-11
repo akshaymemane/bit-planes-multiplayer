@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
     <!-- PWA manifest -->
@@ -22,159 +22,196 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
     <style>
-        .audio-controls {
+        /* ── Settings button (gear icon, always visible) ── */
+        #settings-btn {
             position: fixed;
-            top: 18px;
-            right: 18px;
-            width: min(290px, calc(100vw - 36px));
-            padding: 14px;
+            top: env(safe-area-inset-top, 0px);
+            right: env(safe-area-inset-right, 0px);
+            margin-top: 14px;
+            margin-right: 14px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.22);
+            background: rgba(12, 24, 36, 0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.18s ease, transform 0.18s ease;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+        }
+        #settings-btn:hover, #settings-btn:active {
+            background: rgba(30, 50, 70, 0.9);
+            transform: scale(0.93);
+        }
+
+        /* ── Settings backdrop ── */
+        #settings-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 1090;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        #settings-backdrop.open { display: block; }
+
+        /* ── Settings panel ── */
+        #settings-panel {
+            display: none;
+            position: fixed;
+            top: env(safe-area-inset-top, 0px);
+            right: env(safe-area-inset-right, 0px);
+            margin-top: 72px;
+            margin-right: 14px;
+            width: min(280px, calc(100vw - 28px));
             border-radius: 18px;
-            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(10, 20, 34, 0.92);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             color: #eff6ff;
             font-family: "Avenir Next", "Trebuchet MS", sans-serif;
-            font-size: 12px;
-            background: rgba(12, 24, 36, 0.88);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            backdrop-filter: blur(14px);
-            transition: width 0.25s ease, padding 0.25s ease, transform 0.25s ease, background 0.25s ease;
-            box-shadow: 0 16px 38px rgba(12, 24, 36, 0.28);
-        }
-
-        .audio-controls.minimized {
-            width: 56px;
-            height: 56px;
-            padding: 0;
+            font-size: 13px;
+            z-index: 1100;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
             overflow: hidden;
-            display: grid;
-            place-items: center;
-            border-radius: 50%;
-            background: rgba(12, 24, 36, 0.94);
+            transform-origin: top right;
+            animation: settingsPop 0.18s ease;
+        }
+        #settings-panel.open { display: block; }
+
+        @keyframes settingsPop {
+            from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .audio-controls.minimized .audio-controls-header,
-        .audio-controls.minimized .controls-content {
-            display: none;
-        }
-
-        .audio-controls-header {
+        .settings-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
-            gap: 12px;
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .audio-controls h3 {
+        .settings-header h3 {
             margin: 0;
             font-size: 13px;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-weight: 600;
         }
-
-        .minimize-btn {
+        #settings-close {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.14);
             color: white;
             cursor: pointer;
-            font-size: 14px;
-            width: 30px;
-            height: 30px;
-            border-radius: 999px;
-            transition: background 0.2s ease, transform 0.2s ease;
-        }
-
-        .minimize-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .audio-controls label {
-            display: block;
-            margin: 10px 0;
-        }
-
-        .audio-controls input[type="range"] {
-            width: 100%;
-            margin-top: 6px;
-        }
-
-        .audio-test {
+            font-size: 13px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 12px;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+            -webkit-tap-highlight-color: transparent;
         }
+        #settings-close:hover { background: rgba(255, 255, 255, 0.2); }
 
-        .audio-test button {
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: white;
-            padding: 6px 8px;
-            border-radius: 999px;
-            cursor: pointer;
+        .settings-section {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .settings-section:last-child { border-bottom: none; }
+        .settings-section-title {
             font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 10px;
         }
-
-        .audio-test button:hover {
-            background: rgba(255, 255, 255, 0.22);
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 8px 0;
         }
-
-        .audio-icon {
-            display: none;
-            place-items: center;
-            width: 56px;
-            height: 56px;
-            font-size: 22px;
+        .settings-row label {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .settings-row input[type="range"] {
+            flex: 1;
+            accent-color: rgba(245, 158, 11, 0.9);
+        }
+        .settings-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: rgba(245, 158, 11, 0.9);
             cursor: pointer;
         }
 
-        .audio-controls.minimized .audio-icon {
-            display: grid !important;
+        /* Exit game button */
+        #exit-game-btn {
+            width: 100%;
+            padding: 11px 0;
+            border-radius: 10px;
+            border: 1.5px solid rgba(220, 60, 60, 0.6);
+            background: rgba(180, 40, 40, 0.3);
+            color: rgba(255, 160, 160, 0.95);
+            font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
         }
-
-        .audio-icon:hover {
-            opacity: 0.82;
-        }
-
-        @media only screen and (max-width: 720px) {
-            .audio-controls {
-                top: 12px;
-                right: 12px;
-            }
+        #exit-game-btn:hover, #exit-game-btn:active {
+            background: rgba(200, 50, 50, 0.55);
+            transform: scale(0.97);
         }
     </style>
 </head>
 
 <body>
-    <div class="audio-controls" id="audioControls">
-        <div class="audio-controls-header">
-            <h3>Audio Console</h3>
-            <button class="minimize-btn" id="minimizeBtn" title="Minimize">▼</button>
+    <!-- Settings gear icon (always visible) -->
+    <button id="settings-btn" aria-label="Settings">⚙</button>
+
+    <!-- Settings backdrop -->
+    <div id="settings-backdrop"></div>
+
+    <!-- Settings panel -->
+    <div id="settings-panel" role="dialog" aria-label="Settings">
+        <div class="settings-header">
+            <h3>Settings</h3>
+            <button id="settings-close" aria-label="Close settings">✕</button>
         </div>
 
-        <div class="controls-content">
-            <label>
-                Master volume
+        <div class="settings-section">
+            <div class="settings-section-title">Sound</div>
+            <div class="settings-row">
+                <label for="masterVolume">Volume</label>
                 <input type="range" id="masterVolume" min="0" max="100" value="70">
-            </label>
-            <label>
-                <input type="checkbox" id="muteAudio"> Mute all
-            </label>
-            <div class="audio-test">
-                <button onclick="window.bitplanesAudio?.playSound('machine_gun')">Gun</button>
-                <button onclick="window.bitplanesAudio?.playSound('cannon')">Cannon</button>
-                <button onclick="window.bitplanesAudio?.playSound('explosion')">Explosion</button>
-                <button onclick="window.bitplanesAudio?.playSound('hit')">Hit</button>
-                <button onclick="window.bitplanesAudio?.playSound('engine')">Engine</button>
-                <button onclick="window.bitplanesAudio?.playSound('laser')">Laser</button>
-                <button onclick="window.bitplanesAudio?.playSound('click')">Click</button>
+            </div>
+            <div class="settings-row">
+                <label for="muteAudio">Mute all</label>
+                <input type="checkbox" id="muteAudio">
             </div>
         </div>
 
-        <div class="audio-icon" id="audioIcon" aria-label="Expand audio controls" style="display: none;">🔊</div>
+        <div class="settings-section" id="exit-section" style="display:none;">
+            <button id="exit-game-btn">Exit to Lobby</button>
+        </div>
     </div>
 
     <main>
@@ -390,49 +427,66 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            const audioControls = document.getElementById("audioControls");
-            const minimizeBtn = document.getElementById("minimizeBtn");
-            const audioIcon = document.getElementById("audioIcon");
+            // ── Settings panel ──────────────────────────────────────────
+            var settingsBtn      = document.getElementById("settings-btn");
+            var settingsPanel    = document.getElementById("settings-panel");
+            var settingsBackdrop = document.getElementById("settings-backdrop");
+            var settingsClose    = document.getElementById("settings-close");
+            var exitSection      = document.getElementById("exit-section");
+            var exitGameBtn      = document.getElementById("exit-game-btn");
 
-            function setAudioPanelMinimized(minimized) {
-                if (!audioControls || !minimizeBtn || !audioIcon) {
-                    return;
-                }
-                audioControls.classList.toggle("minimized", minimized);
-                minimizeBtn.innerHTML = minimized ? "▲" : "▼";
-                minimizeBtn.title = minimized ? "Expand" : "Minimize";
-                audioIcon.style.display = minimized ? "grid" : "none";
+            function openSettings() {
+                settingsPanel.classList.add("open");
+                settingsBackdrop.classList.add("open");
+            }
+            function closeSettings() {
+                settingsPanel.classList.remove("open");
+                settingsBackdrop.classList.remove("open");
             }
 
-            if (audioControls && minimizeBtn && audioIcon) {
-                minimizeBtn.addEventListener("click", function () {
-                    setAudioPanelMinimized(!audioControls.classList.contains("minimized"));
-                });
+            if (settingsBtn)      settingsBtn.addEventListener("click", openSettings);
+            if (settingsClose)    settingsClose.addEventListener("click", closeSettings);
+            if (settingsBackdrop) settingsBackdrop.addEventListener("click", closeSettings);
 
-                audioIcon.addEventListener("click", function () {
-                    setAudioPanelMinimized(false);
-                });
+            // Close on Escape
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape") closeSettings();
+            });
 
-                let inactivityTimer;
-                function resetInactivityTimer() {
-                    clearTimeout(inactivityTimer);
-                    inactivityTimer = setTimeout(function () {
-                        if (!audioControls.classList.contains("minimized")) {
-                            setAudioPanelMinimized(true);
-                        }
-                    }, 12000);
-                }
-
-                audioControls.addEventListener("mouseenter", resetInactivityTimer);
-                audioControls.addEventListener("click", resetInactivityTimer);
-                setAudioPanelMinimized(true);
-                resetInactivityTimer();
+            // ── Show/hide "Exit to Lobby" based on game state ────────────
+            var mainEl = document.querySelector("main");
+            function updateExitVisibility() {
+                if (!mainEl || !exitSection) return;
+                var mainHidden = window.getComputedStyle(mainEl).display === "none" || mainEl.hidden;
+                exitSection.style.display = mainHidden ? "block" : "none";
+            }
+            if (mainEl) {
+                var stateObserver = new MutationObserver(updateExitVisibility);
+                stateObserver.observe(mainEl, { attributes: true, attributeFilter: ["hidden", "style", "class"] });
+                setInterval(updateExitVisibility, 200);
+                updateExitVisibility();
             }
 
+            // ── Exit game: restore DOM to lobby state ────────────────────
+            if (exitGameBtn) {
+                exitGameBtn.addEventListener("click", function () {
+                    closeSettings();
+                    var canvas = document.getElementById("canvas");
+                    var ui     = document.querySelector(".ui");
+                    if (mainEl)  { mainEl.style.display  = ""; }
+                    if (canvas)  { canvas.style.display  = "none"; }
+                    if (ui)      { ui.style.display      = "none"; }
+                    // Mute audio briefly to avoid gun sounds on re-entry
+                    if (window.bitplanesAudio) window.bitplanesAudio.setMuted(true);
+                    setTimeout(function () {
+                        if (window.bitplanesAudio) window.bitplanesAudio.setMuted(false);
+                    }, 300);
+                });
+            }
+
+            // ── Audio controls wiring ────────────────────────────────────
             setTimeout(function () {
-                if (!window.bitplanesAudio) {
-                    return;
-                }
+                if (!window.bitplanesAudio) return;
 
                 window.addEventListener("keydown", function (event) {
                     if (event.code === "Space") {
@@ -442,15 +496,14 @@
                     }
                 });
 
-                const masterVolume = document.getElementById("masterVolume");
-                const muteAudio = document.getElementById("muteAudio");
+                var masterVolume = document.getElementById("masterVolume");
+                var muteAudio    = document.getElementById("muteAudio");
 
                 if (masterVolume) {
                     masterVolume.addEventListener("input", function (event) {
                         window.bitplanesAudio.setMasterVolume(event.target.value / 100);
                     });
                 }
-
                 if (muteAudio) {
                     muteAudio.addEventListener("change", function (event) {
                         window.bitplanesAudio.setMuted(event.target.checked);

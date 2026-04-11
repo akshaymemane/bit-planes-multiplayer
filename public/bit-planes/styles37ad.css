@@ -859,11 +859,14 @@ main em {
 #canvas {
     display: none;
     z-index: 1;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
+    /* Fallback for browsers with dynamic viewport units */
+    width: 100dvw;
+    height: 100dvh;
 }
 
 .ui {

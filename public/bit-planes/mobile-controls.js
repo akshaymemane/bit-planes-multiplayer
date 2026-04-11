@@ -180,18 +180,24 @@
 
   // Show / hide controls based on game state
   function bindVisibility(root) {
-    const mainEl = document.querySelector('main');
+    const mainEl  = document.querySelector('main');
+    const canvasEl = document.getElementById('canvas');
     if (!mainEl) return;
 
     function update() {
-      const style = window.getComputedStyle(mainEl);
-      const gameRunning = style.display === 'none' || mainEl.hidden;
-      root.classList.toggle('visible', gameRunning);
+      // Game is running when main is hidden (the game code sets main.style.display = "none")
+      const mainHidden   = window.getComputedStyle(mainEl).display === 'none' || mainEl.hidden;
+      // Double-check: canvas being visible also means game is running
+      const canvasShown  = canvasEl && window.getComputedStyle(canvasEl).display !== 'none';
+      root.classList.toggle('visible', mainHidden || canvasShown);
     }
 
-    // Observe attribute and style changes for fast response
+    // Observe attribute and style changes on both main and canvas for fast response
     const observer = new MutationObserver(update);
     observer.observe(mainEl, { attributes: true, attributeFilter: ['hidden', 'style', 'class'] });
+    if (canvasEl) {
+      observer.observe(canvasEl, { attributes: true, attributeFilter: ['style', 'class'] });
+    }
     // Fallback poll at 100ms for display changes applied via stylesheet
     setInterval(update, 100);
     update();
